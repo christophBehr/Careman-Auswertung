@@ -48,6 +48,8 @@ def bereinigung_csv(tmp_csv, archiv_csv, arbeitsmappe_csv):
     frame = tmp_frame.iloc[: , [1, 8, 47, 46 ,48, 74]]
     frame.to_csv(arbeitsmappe_csv, header=None)
     data = pd.read_csv(arbeitsmappe_csv, sep=",", header=None, names=["KFZ", "Einsatz Nr.", "Datum", "Start", "Ende", "Infektion"], encoding="utf8")
+    data.sort_values(by=["Datum", "KFZ"], Ignore_Index=True)
+    #Ausgabe csv für debuging
     data.to_csv("data_auswertung.csv")
     data.to_excel("data_auswertung.xlsx")
 
