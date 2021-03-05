@@ -1,4 +1,3 @@
-
 import os
 import io
 import csv
@@ -73,4 +72,6 @@ def run():
         elif erstelle == "n":
             print("Ausgabe der Auswerung.")
             bereinigung_csv("csv_test.csv", "archiv.csv", "arbeitsmappe.csv")
+    else:
+        quit()
 run()
