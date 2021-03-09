@@ -1,2 +1,2 @@
 # Careman Auswertung
- Liest die exporte aus Careman ein und verarbeite Sie weiter
+ Liest die Exporte aus Careman ein und verarbeitet diese weiter.
