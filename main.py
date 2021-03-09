@@ -7,7 +7,6 @@ import pandas as pd
 import numpy as np
 from pandas.core.base import PandasObject
 import plotly.express as px
-from datetime import datetime
 
 def lese_daten(tmp_txt, export_txt):
     """
