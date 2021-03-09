@@ -1,7 +1,13 @@
+from datetime import date, datetime
 import os
 import io
 import csv
+from numpy.core.fromnumeric import sort
 import pandas as pd
+import numpy as np
+from pandas.core.base import PandasObject
+import plotly.express as px
+from datetime import datetime
 
 def lese_daten(tmp_txt, export_txt):
     """
@@ -46,11 +52,48 @@ def bereinigung_csv(tmp_csv, archiv_csv, arbeitsmappe_csv):
 
     frame = tmp_frame.iloc[: , [1, 8, 47, 46 ,48, 74]]
     frame.to_csv(arbeitsmappe_csv, header=None)
-    data = pd.read_csv(arbeitsmappe_csv, sep=",", header=None, names=["KFZ", "Einsatz Nr.", "Datum", "Start", "Ende", "Infektion"], encoding="utf8")
-    data.sort_values(by=["Datum", "KFZ"], Ignore_Index=True)
+    data = pd.read_csv(arbeitsmappe_csv, sep=",", header=None,  names=["Index", "KFZ", "Einsatz Nr.", "Datum", "Start", "Ende", "Infektion"], encoding="utf8")
+    data.sort_values(by=["Datum", "KFZ"])
     #Ausgabe csv für debuging
-    data.to_csv("data_auswertung.csv")
-    data.to_excel("data_auswertung.xlsx")
+    data.to_csv("data_auswertung.csv", index=False)
+    data.to_excel("data_auswertung.xlsx", index = False)
+
+def pie_chart():
+    """
+    Kuchen Diagramm aller von KFZ durchgeführten Fahrten.
+    TODO: Zeitbereichsauswahl GUI Integration
+    """
+
+    df = pd.read_csv("data_auswertung.csv", index_col="Index")
+    ktw_fahrten = []
+    ktw_list = sorted(df.KFZ.unique())
+    for ktw in ktw_list:
+        df_series = pd.DataFrame(df, columns=["KFZ"])
+        series = df_series.squeeze()
+        anz_fahrten = series.str.count(ktw).sum()
+        ktw_fahrten.append(anz_fahrten)
+    df_fahrten = pd.DataFrame(list(zip(ktw_list, ktw_fahrten)), columns=["KFZ", "Anzahl Fahrten"])
+    fig_pi = px.pie(df_fahrten, names=ktw_list, values=ktw_fahrten)
+
+    fig_pi.show()    
+
+def balken_datum(start_datum, end_datum):
+    """
+    Zeitlicher Verlauf der Fahrten von KFZ in einem gewählten Zeitbereich
+    TODO:GUI Integration
+    """
+
+    df = pd.read_csv("data_auswertung.csv", index_col="Index")
+    df = pd.DataFrame(df)
+    df["Datum"] = pd.to_datetime(df["Datum"])
+    bereich = (df["Datum"] >= start_datum) & (df["Datum"] <= end_datum)
+    df_bereich = df.loc[bereich]
+
+    fahrten = df_bereich.groupby(["Datum", "KFZ"]).size()
+
+    fahrten_new = fahrten.to_frame(name="Fahrten").reset_index()
+    fig_lines = px.line(fahrten_new, x="Datum", y="Fahrten", color="KFZ")
+    fig_lines.show()
 
 def run():
     """
@@ -74,4 +117,13 @@ def run():
             bereinigung_csv("csv_test.csv", "archiv.csv", "arbeitsmappe.csv")
     else:
         quit()
-run()
+
+
+#Wähle Startdatum
+start_datum = "2020-10-01"
+#Wähle Enddatum
+end_datum = "2020-10-31"
+
+pie_chart()
+balken_datum(start_datum, end_datum)
+#run()
